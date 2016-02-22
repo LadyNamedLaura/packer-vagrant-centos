@@ -1,0 +1,51 @@
+{
+  "push": {
+    "name": "SimonPe/centos-puppet"
+  },
+  "variables": {
+    "cloud_token": "{{env `ATLAS_TOKEN`}}",
+    "box_version": "{{env `VERSION`}}"
+  },
+  "provisioners": [{
+    "type": "shell",
+    "scripts": [
+      "scripts/base.sh",
+      "scripts/cleanup.sh",
+      "scripts/zerodisk.sh"
+    ],
+    "execute_command": "sudo -S sh '{{.Path}}'"
+  }],
+  "builders": [
+    {
+      "name": "centos-7-kvm",
+      "type": "qemu",
+      "disk_size": 10240,
+      "format": "qcow2",
+      "headless": false,
+      "accelerator": "kvm",
+      "net_device": "virtio-net",
+      "disk_interface": "virtio",
+      "iso_checksum": "f90e4d28fa377669b2db16cbcb451fcb9a89d2460e3645993e30e137ac37d284",
+      "iso_checksum_type": "sha256",
+      "iso_url": "http://ftp.belnet.be/ftp.centos.org/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "sudo -S poweroff",
+      "http_directory": "http",
+      "boot_wait": "5s",
+      "boot_command": [
+        "<tab> inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.el7.cfg<enter><wait>"
+      ]
+    }],
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "compression_level": 1,
+        "output": "centos7-puppet_{{.Provider}}.box"
+      }
+    ]
+  ]
+}
